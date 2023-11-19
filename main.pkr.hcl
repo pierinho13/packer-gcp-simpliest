@@ -1,7 +1,5 @@
 packer {
   required_plugins {
-
-
     
     googlecompute = {
       source  = "github.com/hashicorp/googlecompute"
@@ -16,39 +14,13 @@ packer {
   }
 }
 
-
-variable "project_id" {
-  type    = string
-  default = "geometric-edge-395607"
-}
-
-variable "zone" {
-  type    = string
-  default = "europe-west1-c"
-}
-
-variable "vpc_name" {
-  type    = string
-  default = "vpc-test-demo"
-}
-
-variable "subnet_name" {
-  type    = string
-  default = "subnet-europe-west1"
-}
-
-variable "account_file_path" {
-  type    = string
-  default = "/home/piero/keys/terraform-demo.json"
-}
-
 source "googlecompute" "nginx" {
   project_id              = var.project_id
   image_name              = "nginx-image-as-simple-as-posible"
   source_image            = "debian-11-bullseye-v20230711"
   source_image_family     = "debian-11"
   zone                    = var.zone
-  ssh_username            = "piero"
+  ssh_username            = "piero.rospigliosi"
   ssh_timeout             = "2m"
   image_description       = "Debian 11 Bullseye nginx as simple as posible"
   network                 = var.vpc_name
@@ -70,6 +42,8 @@ build {
   sources = ["source.googlecompute.nginx"]
    provisioner "ansible" {
      playbook_file = "./first_ansible_playbook.yml"
+     ansible_env_vars = ["ANSIBLE_REMOTE_TEMP=/tmp","ANSIBLE_LOCAL_TEMP=/tmp"]
+     extra_arguments = [ "--scp-extra-args", "'-O'" ]
   }
 }
 
